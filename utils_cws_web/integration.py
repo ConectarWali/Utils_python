@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 from urllib.error import HTTPError
 from json import dumps, loads
 from ssl import _create_unverified_context
-import logging
+from logging import getLogger
 from typing import Optional, Dict, Any
 from http.client import HTTPResponse
 
@@ -28,7 +28,7 @@ class Integration:
         self.__params = params or {}
         self.__timeout = timeout
         self.__verify_ssl = verify_ssl
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = getLogger(__name__)
 
     def __enter__(self):
         # Allows the use of this class in a context manager (with statement)
