@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Utils_cws_web',
-    version='1.0.2',
+    version='1.0.3',
     description="It's a package that contains utilities for web development.",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
