@@ -1,9 +1,9 @@
 from http import HTTPMethod
-import urllib.request
-import urllib.parse
-import urllib.error
-import json
-import ssl
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode
+from urllib.error import HTTPError
+from json import dumps, loads
+from ssl import _create_unverified_context
 import logging
 from typing import Optional, Dict, Any
 from http.client import HTTPResponse
@@ -55,22 +55,22 @@ class Integration:
         if data is not None:
             headers['Content-Type'] = 'application/json'
             
-        req = urllib.request.Request(
+        req = Request(
             url,
             headers=headers,
             method=method.value
         )
 
         if data is not None:
-            req.data = json.dumps(data).encode('utf-8')
+            req.data = dumps(data).encode('utf-8')
 
         try:
             # Creates an SSL context if SSL verification is disabled
-            context = None if self.__verify_ssl else ssl._create_unverified_context()
-            with urllib.request.urlopen(req, timeout=self.__timeout, context=context) as response:
+            context = None if self.__verify_ssl else _create_unverified_context()
+            with urlopen(req, timeout=self.__timeout, context=context) as response:
                 return self._handle_response(response)
                 
-        except urllib.error.HTTPError as e:
+        except HTTPError as e:
             # Retries the request if it's a server error (5xx) and retry count is less than MAX_RETRIES
             if retry_count < self.MAX_RETRIES and 500 <= e.code < 600:
                 return self.request(method, endpoint, data, params, retry_count + 1)
@@ -81,7 +81,7 @@ class Integration:
         all_params = {**self.__params, **(params or {})}
         url = f"{self.__base_url}/{endpoint.lstrip('/')}"
         if all_params:
-            url = f"{url}?{urllib.parse.urlencode(all_params)}"
+            url = f"{url}?{urlencode(all_params)}"
         return url
 
     def _handle_response(self, response: HTTPResponse) -> Dict[str, Any]:
@@ -89,4 +89,4 @@ class Integration:
         content = response.read()
         if not content:
             raise Integration_error("Empty response")
-        return json.loads(content.decode('utf-8'))
+        return loads(content.decode('utf-8'))
