@@ -6,4 +6,4 @@ from utils_cws_web.integration import Integration
 
 
 
-__version__ = '1.1.0'
+__version__ = '1.0.3'
